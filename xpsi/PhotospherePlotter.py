@@ -23,15 +23,15 @@ if _mpl is not None:
 else:
     pass
 
-class PhotospherePlotter( xpsi.Photosphere ):
+from xpsi.Photosphere import Photosphere
+
+class PhotospherePlotter( Photosphere ):
     """ A photosphere plotter to do all sorts of cool images.
 
     """
-    def __init__ (self) :
-        print('initiating')
-        super().__init__()
-        print('initiated')
-
+    def __init__ (self, Photosphere) :
+        self.photosphere = Photosphere
+        print(self.photosphere._params)
 
     @property
     def global_variables(self):
@@ -62,7 +62,16 @@ class PhotospherePlotter( xpsi.Photosphere ):
 
         """
         try:
-            return _np.array([self['temperature']])
+            "Loading the parameters provided by the parent Photosphere instance"
+            L=[]
+            for param in self.photosphere._params:
+                fac=1
+                if 'shift' in param.name:
+                    fac=_2pi
+                L.append(self.photosphere[param.name] * fac)
+
+            return _np.array(L)
+        
         except KeyError:
             raise NotImplementedError('Subclass and provide an implementation.')
 
@@ -503,7 +512,7 @@ class PhotospherePlotter( xpsi.Photosphere ):
         else:
             raise TypeError('Got an unrecognised atm_ext argument. Note that the only allowed '
                             'atmosphere options are at the moment "BB", "Num4D", and "user".')
-        ref = self._spacetime # geometry shortcut saves characters
+        ref = self.photosphere._spacetime # geometry shortcut saves characters
         try:
             _DV = deactivate_verbosity
         except NameError:
@@ -628,7 +637,7 @@ class PhotospherePlotter( xpsi.Photosphere ):
                                 ref.r_s,
                                 ref.R,
                                 ref.Omega,
-                                self['mode_frequency'],
+                                self.photosphere['mode_frequency'],
                                 ref.zeta,
                                 ref.epsilon,
                                 ref.a, # dimensionless spin
@@ -650,7 +659,7 @@ class PhotospherePlotter( xpsi.Photosphere ):
                                 single_precision_intensities,
                                 _ray_map,
                                 self.global_to_local_file,
-                                self._hot_atmosphere,
+                                self.photosphere._hot_atmosphere,
                                 atmosphere_extension)
 
             if images[0] == 1:
@@ -694,7 +703,7 @@ class PhotospherePlotter( xpsi.Photosphere ):
                     yield 'Specific flux integration complete.'
 
             # memoization
-            self._spacetime([param.value for param in self._spacetime])
+            self.photosphere._spacetime([param.value for param in self.photosphere._spacetime])
 
         if sky_map_kwargs is None: sky_map_kwargs = {}
         if animate_kwargs is None: animate_kwargs = {}
@@ -1379,7 +1388,7 @@ class PhotospherePlotter( xpsi.Photosphere ):
             right = 0.975
             top = bottom + (right - left)
 
-            ref = self._spacetime
+            ref = self.photosphere._spacetime
 
             fig = Figure(figsize = figsize)
             canvas = FigureCanvas(fig)
@@ -1696,28 +1705,26 @@ class PhotospherePlotter( xpsi.Photosphere ):
 
         yield None
 
-Photosphere._update_doc()
+    def _veneer(x, y, axes, lw=1.0, length=8, log=(False, False)):
+        """ Make the plots a little more aesthetically pleasing. """
+        if x is not None:
+            if x[1] is not None:
+                axes.xaxis.set_major_locator(MultipleLocator(x[1]))
+            if x[0] is not None:
+                axes.xaxis.set_minor_locator(MultipleLocator(x[0]))
+        elif not log[0]:
+            axes.xaxis.set_major_locator(AutoLocator())
+            axes.xaxis.set_minor_locator(AutoMinorLocator())
 
-def _veneer(x, y, axes, lw=1.0, length=8, log=(False, False)):
-    """ Make the plots a little more aesthetically pleasing. """
-    if x is not None:
-        if x[1] is not None:
-            axes.xaxis.set_major_locator(MultipleLocator(x[1]))
-        if x[0] is not None:
-            axes.xaxis.set_minor_locator(MultipleLocator(x[0]))
-    elif not log[0]:
-        axes.xaxis.set_major_locator(AutoLocator())
-        axes.xaxis.set_minor_locator(AutoMinorLocator())
+        if y is not None:
+            if y[1] is not None:
+                axes.yaxis.set_major_locator(MultipleLocator(y[1]))
+            if y[0] is not None:
+                axes.yaxis.set_minor_locator(MultipleLocator(y[0]))
+        elif not log[1]:
+            axes.yaxis.set_major_locator(AutoLocator())
+            axes.yaxis.set_minor_locator(AutoMinorLocator())
 
-    if y is not None:
-        if y[1] is not None:
-            axes.yaxis.set_major_locator(MultipleLocator(y[1]))
-        if y[0] is not None:
-            axes.yaxis.set_minor_locator(MultipleLocator(y[0]))
-    elif not log[1]:
-        axes.yaxis.set_major_locator(AutoLocator())
-        axes.yaxis.set_minor_locator(AutoMinorLocator())
-
-    axes.tick_params(which='major', colors='black', length=length, width=lw)
-    axes.tick_params(which='minor', colors='black', length=int(length/2), width=lw)
-    plt.setp(list(axes.spines.values()), linewidth=lw, color='black')
+        axes.tick_params(which='major', colors='black', length=length, width=lw)
+        axes.tick_params(which='minor', colors='black', length=int(length/2), width=lw)
+        plt.setp(list(axes.spines.values()), linewidth=lw, color='black')
