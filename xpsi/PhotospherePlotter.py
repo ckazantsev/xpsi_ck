@@ -5,6 +5,7 @@ from xpsi.utils import  make_verbose, verbose
 from os.path import join as _join
 
 import xpsi
+from xpsi.global_imports import _2pi
 from xpsi.pixelmesh.integrator import integrate as _integrate
 from xpsi.tools.energy_integrator import energy_integrator
 from xpsi.tools.phase_integrator import phase_integrator
@@ -63,14 +64,7 @@ class PhotospherePlotter( Photosphere ):
         """
         try:
             "Loading the parameters provided by the parent Photosphere instance"
-            L=[]
-            for param in self.photosphere._params:
-                fac=1
-                if 'shift' in param.name:
-                    fac=_2pi
-                L.append(self.photosphere[param.name] * fac)
-
-            return _np.array(L)
+            return _np.array([self.photosphere['temperature']])
         
         except KeyError:
             raise NotImplementedError('Subclass and provide an implementation.')
@@ -1705,26 +1699,26 @@ class PhotospherePlotter( Photosphere ):
 
         yield None
 
-    def _veneer(x, y, axes, lw=1.0, length=8, log=(False, False)):
-        """ Make the plots a little more aesthetically pleasing. """
-        if x is not None:
-            if x[1] is not None:
-                axes.xaxis.set_major_locator(MultipleLocator(x[1]))
-            if x[0] is not None:
-                axes.xaxis.set_minor_locator(MultipleLocator(x[0]))
-        elif not log[0]:
-            axes.xaxis.set_major_locator(AutoLocator())
-            axes.xaxis.set_minor_locator(AutoMinorLocator())
+def _veneer(x, y, axes, lw=1.0, length=8, log=(False, False)):
+    """ Make the plots a little more aesthetically pleasing. """
+    if x is not None:
+        if x[1] is not None:
+            axes.xaxis.set_major_locator(MultipleLocator(x[1]))
+        if x[0] is not None:
+            axes.xaxis.set_minor_locator(MultipleLocator(x[0]))
+    elif not log[0]:
+        axes.xaxis.set_major_locator(AutoLocator())
+        axes.xaxis.set_minor_locator(AutoMinorLocator())
 
-        if y is not None:
-            if y[1] is not None:
-                axes.yaxis.set_major_locator(MultipleLocator(y[1]))
-            if y[0] is not None:
-                axes.yaxis.set_minor_locator(MultipleLocator(y[0]))
-        elif not log[1]:
-            axes.yaxis.set_major_locator(AutoLocator())
-            axes.yaxis.set_minor_locator(AutoMinorLocator())
+    if y is not None:
+        if y[1] is not None:
+            axes.yaxis.set_major_locator(MultipleLocator(y[1]))
+        if y[0] is not None:
+            axes.yaxis.set_minor_locator(MultipleLocator(y[0]))
+    elif not log[1]:
+        axes.yaxis.set_major_locator(AutoLocator())
+        axes.yaxis.set_minor_locator(AutoMinorLocator())
 
-        axes.tick_params(which='major', colors='black', length=length, width=lw)
-        axes.tick_params(which='minor', colors='black', length=int(length/2), width=lw)
-        plt.setp(list(axes.spines.values()), linewidth=lw, color='black')
+    axes.tick_params(which='major', colors='black', length=length, width=lw)
+    axes.tick_params(which='minor', colors='black', length=int(length/2), width=lw)
+    plt.setp(list(axes.spines.values()), linewidth=lw, color='black')
