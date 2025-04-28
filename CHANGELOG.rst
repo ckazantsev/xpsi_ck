@@ -33,8 +33,61 @@ and this project adheres to
 .. Attribution
 .. ^^^^^^^^^^^
 
-[3.0.3] - 2025-01-29
-~~~~~~~~~~~~~~~~~~~~
+[v3.0.5] - 2025-03-19
+~~~~~~~~~~~~~~~~~~~~~
+
+Summary
+^^^^^^^
+
+* Issues with phase bin interpolations were fixed when using the time-invariant version of the Everywhere class.
+
+Fixed
+^^^^^^^
+
+* Phase bin interpolations are now skipped if having only one phase bin during the likelihood calculation (``xpsi/likelihoods/default_background_marginalisation.pyx``) or during the data synthesisation (``xpsi/tools/synthesise.pyx``). Previously, these resulted in errors.
+
+Changed
+^^^^^^^
+
+* The number of phase bins and leaves are now always forced to 1 if ``time_invariant=True`` is used. The 2D-pulse plotting in Global surface emission -tutorial was updated to account for this.
+
+Attribution
+^^^^^^^^^^^
+
+Christine Kazantsev,
+Tuomo Salmi
+
+
+[v3.0.4] - 2025-02-13
+~~~~~~~~~~~~~~~~~~~~~
+
+Summary
+^^^^^^^
+
+* Updates to the Post-processing tools and documentation.
+
+Fixed
+^^^^^^^
+
+* Fixed the Post-processing tutorial to show the correct shaded credible regions (not using the outdated ``shade_root_index`` syntax).
+
+Changed
+^^^^^^^
+
+* Posterior predictive error bars were added to the bolometric pulse profile model plot (in ``_residuals.py``).
+
+* Clarified in the Post-processing tutorial that the set parameter bounds must match those used during sampling.
+
+Attribution
+^^^^^^^^^^^
+
+Lucien Mauviard,
+Christine Kazantsev,
+Tuomo Salmi
+
+
+[v3.0.3] - 2025-01-29
+~~~~~~~~~~~~~~~~~~~~~
 
 Summary
 ^^^^^^^
@@ -57,8 +110,9 @@ Devarshi Choudhury,
 Tuomo Salmi,
 Bas Dorsman
 
-[3.0.2] - 2025-01-17
-~~~~~~~~~~~~~~~~~~~~
+
+[v3.0.2] - 2025-01-17
+~~~~~~~~~~~~~~~~~~~~~
 
 Summary
 ^^^^^^^
@@ -85,8 +139,8 @@ Christine Kazantsev,
 Lucien Mauviard
 
 
-[3.0.1] - 2025-01-16
-~~~~~~~~~~~~~~~~~~~~
+[v3.0.1] - 2025-01-16
+~~~~~~~~~~~~~~~~~~~~~
 
 Summary
 ^^^^^^^
